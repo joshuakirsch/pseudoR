@@ -1,0 +1,52 @@
+while getopts "s:t:d:r:" flag
+do
+    case "${flag}" in
+        s) sraList=${OPTARG};;
+        t) max_threads=${OPTARG};;
+	d) database=${OPTARG};;
+	r) read_loc=${OPTARG};;
+
+    esac
+done
+
+mkdir dedupe_reads
+mkdir assemblies
+
+wd=$(pwd)
+echo $wd
+
+#deduplicate reads (use raw untrimmed reads here)
+for i in $(cat ${sraList})
+do
+cat ${read_loc}/${i}_1.fastq ${read_loc}/${i}_2.fastq >reads.fq
+clumpify.sh in=reads.fq out=reads.dedup.fq dedupe subs=0 threads=${max_threads} overwrite=true
+repair.sh in=reads.dedup.fq out=reads.dedupe.1.fq out2=reads.dedupe.2.fq outs=reads.dedupe.s.fq overwrite=true
+#
+bbduk.sh in1=reads.dedupe.1.fq in2=reads.dedupe.2.fq ref=${database}/bbmap_resources/adapters.fa out1=reads.trim.1.fq \
+out2=reads.trim.2.fq ktrim=l ktrim=r k=20 mink=4 minlen=20 qtrim=f threads=${max_threads} overwrite=true
+bbsplit.sh in1=reads.trim.1.fq in2=reads.trim.2.fq \
+ref=${database}/ref-genomes/phiX174.fa,${database}/ref-genomes/GRCm39.fa,${database}/ref-genomes/GRCh38.fa \
+outu1=dedupe_reads/${i}.dedupe_reads.1.fq.gz outu2=dedupe_reads/${i}.dedupe_reads.2.fq.gz threads=${max_threads} overwrite=true 2>out1.txt 
+
+#
+bbduk.sh in=reads.dedupe.s.fq ref=${database}/bbmap_resources/adapters.fa out=reads.trim.fq \
+ktrim=l ktrim=r k=20 mink=4 minlen=20 qtrim=f threads=${max_threads} overwrite=true
+bbsplit.sh in=reads.trim.fq \
+ref=${database}/ref-genomes/phiX174.fa,${database}/ref-genomes/GRCm39.fa,${database}/ref-genomes/GRCh38.fa \
+outu=dedupe_reads/${i}.dedupe_reads.s.fq.gz threads=${max_threads} overwrite=true 2>out2.txt
+
+done
+
+#assemble contigs from processed reads
+for i in $(cat ${sraList})
+do
+zcat dedupe_reads/${i}.dedupe_reads.1.fq.gz >read1.fastq
+zcat dedupe_reads/${i}.dedupe_reads.2.fq.gz >read2.fastq
+zcat dedupe_reads/${i}.dedupe_reads.s.fq.gz >read_singles.fastq
+
+megahit -1 read1.fastq -2 read2.fastq \
+-r read_singles.fastq -o assemblies/${i}_assemblies -t ${max_threads} \
+--presets meta-large -m 0.4
+
+seqkit replace -p .+ -r "${i}_{nr}" assemblies/${i}_assemblies/final.contigs.fa > assemblies/${i}_contigs.fa
+done

@@ -1,0 +1,35 @@
+#remove database and sraList options
+while getopts "c:t:d:" flag
+do
+    case "${flag}" in
+        c) allContigs=${OPTARG};;
+        t) threads=${OPTARG};;
+	d) directory=${OPTARG};;
+
+    esac
+done
+
+
+mkdir ref
+
+max_threads=${threads}
+wd=$(pwd)
+echo $wd
+
+#create allContigs
+seqkit seq -m 1000 ${allContigs} > ref/allContigs.1kb.fa
+
+dedupe.sh in=ref/allContigs.1kb.fa out=ref/allContigs.dedupe.fa minidentity=75 overwrite=true threads=${max_threads}
+python ${directory}/pprodigal.py -i ref/allContigs.dedupe.fa -p meta -d ref/orfs.nucl.fa -T ${max_threads}
+dedupe.sh in=ref/orfs.nucl.fa out=ref/orfs.nucl.dedupe.fa minidentity=75 overwrite=true threads=${max_threads}
+seqkit fx2tab -n -i -l ref/orfs.nucl.dedupe.fa > ref/orfs.nucl.dedupe.lengths.txt
+bowtie2-build ref/orfs.nucl.dedupe.fa ref/orfs.nucl --threads ${max_threads} --large-index -q
+bowtie2-build ref/allContigs.dedupe.fa ref/contigs --threads ${max_threads} --large-index -q
+
+
+# #find ORFs in contigs
+seqkit fx2tab -n ref/orfs.nucl.dedupe.fa | cut -f1 -d " " > temp_name_1.txt
+seqkit fx2tab -n ref/orfs.nucl.dedupe.fa | cut -f3 -d " " > temp_name_2.txt
+seqkit fx2tab -n ref/orfs.nucl.dedupe.fa | cut -f5 -d " " > temp_name_3.txt
+seqkit fx2tab -n ref/orfs.nucl.dedupe.fa | cut -f7 -d " " > temp_name_4.txt
+paste temp_name_1.txt temp_name_2.txt temp_name_3.txt temp_name_4.txt > ref/orfs.ID-loc.txt
