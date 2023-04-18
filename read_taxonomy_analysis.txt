@@ -1,0 +1,37 @@
+while getopts "s:t:d:r:c:m:i:h" flag
+do
+    case "${flag}" in
+        s) sraList=${OPTARG};;
+        t) threads=${OPTARG};;
+	d) database=${OPTARG};;
+	c) dedupe=${OPTARG};;
+	h)
+		echo "This program begins the process of finding IS insertions in metagenomes by first finding insertions in contigs."
+		echo "	-s 	List of samples"
+		echo "	-d	Location of the kraken database [IMPORTANT: if the repo is not reachable via a home direction (eg /Tools), please add ../ before the directory name]"
+		echo "	-c	Folder containing reads"
+		;;
+
+    esac
+done
+
+mkdir kraken_results
+
+for i in $(cat ${sraList})
+do
+gunzip -c ${dedupe}/${i}.dedupe_reads.1.fq.gz > read1.fastq
+gunzip -c ${dedupe}/${i}.dedupe_reads.2.fq.gz > read2.fastq
+gunzip -c ${dedupe}/${i}.dedupe_reads.s.fq.gz > read.s.fastq
+cat read1.fastq read2.fastq read.s.fastq > reads.fastq
+
+kraken2 --db ${database}/kraken_db --threads ${threads} \
+--report kraken_results/${i}.kreport reads.fastq --confidence 0.05 \
+> kraken_results/${i}.kracken
+
+/Tools/Bracken/bracken -i kraken_results/${i}.kreport  -d ${database}/kraken_db \
+-o kraken_results/${i}.Family.bracken -r 150 -l F
+/Tools/Bracken/bracken -i kraken_results/${i}.kreport  -d ${database}/kraken_db \
+-o kraken_results/${i}.Genus.bracken -r 150 -l G
+done
+rm reads1.fastq
+rm reads2.fastq

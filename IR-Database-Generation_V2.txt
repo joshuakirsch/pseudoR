@@ -1,0 +1,15 @@
+#get IRs from IS elements (this block has been checked)
+mkdir temp
+cd-hit-est -i ISfinder-sequences/IS.fna -o temp/IS_nucl.fa -T 4 -c 0.9
+perl clstr2txt.pl temp/IS_nucl.fa.cdhit.clstr > IS.clstr.txt
+seqkit fx2tab temp/IS_nucl.fa > temp/IS_nucl.txt
+cut -f1 temp/IS_nucl.txt | cut -f1 -d "_" | awk '{print $0 "_5prime"}' > temp/name_5.txt
+cut -f1 temp/IS_nucl.txt | cut -f1 -d "_" | awk '{print $0 "_3prime"}' > temp/name_3.txt
+cut -f2 temp/IS_nucl.txt > temp/seqs.txt
+cut -c -150 temp/seqs.txt > temp/seqs_5_150bp.txt
+paste temp/name_5.txt temp/seqs_5_150bp.txt > temp/IRs.5.txt
+rev temp/seqs.txt | cut -c -150 | rev > temp/seqs_3_150bp.txt
+paste temp/name_3.txt temp/seqs_3_150bp.txt > temp/IRs.3.txt
+cat temp/IRs.5.txt temp/IRs.3.txt > temp/IRs.txt
+seqkit tab2fx temp/IRs.txt > IRs.fa
+makeblastdb -in IRs.fa -dbtype 'nucl'

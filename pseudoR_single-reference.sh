@@ -64,8 +64,11 @@ bowtie2 -x ref/contigs -p ${max_threads} -1 temp/read1.fq \
 samtools view -Sb -@ {max_threads} temp/temp.sam > temp/temp1.bam
 samtools sort -@ ${max_threads} -m 4G -o mapping_files/${i}.contig.reads_mapped.bam temp/temp1.bam
 
-samtools fastq -f 4 -N -@ ${max_threads} -s temp/unmapped.s.fq -1 temp/unmapped.1.fq -2 temp/unmapped.2.fq mapping_files/${i}.contig.reads_mapped.bam > blank.txt
-cat temp/unmapped.s.fq temp/unmapped.1.fq temp/unmapped.2.fq > mapping_files/${i}.unmapped.fq
+#samtools fastq -f 4 -N -@ ${max_threads} -s temp/unmapped.s.fq -1 temp/unmapped.1.fq -2 temp/unmapped.2.fq mapping_files/${i}.contig.reads_mapped.bam > blank.txt
+#reformat.sh in=temp/temp.sam out=mapping_files/${i}.unmapped.fq unmappedonly=t overwrite=true
+samtools fastq -f 4 temp/temp.sam > mapping_files/${i}.unmapped.fq
+
+#cat temp/unmapped.s.fq temp/unmapped.1.fq temp/unmapped.2.fq > mapping_files/${i}.unmapped.fq
 
 seqkit replace -p .+ -r "seq_{nr}" mapping_files/${i}.unmapped.fq > mapping_files/${i}.unmapped.numbered.fq
 seqkit fq2fa mapping_files/${i}.unmapped.numbered.fq > unmapped.fa
@@ -79,8 +82,11 @@ samtools view -F 4 mapping_files/${i}.unmapped.contig_mapping.bam > mapping_file
 cut -f3 mapping_files/${i}.unmapped.contig_mapping.filtered.sam | sort | uniq > mapping_files/${i}.contig_IS_hits.txt
 
 #map to ORFs and do IS trimming/mapping [use previously found mapping reads and unmapped reads]
-samtools fastq -F 4 -N -@ ${max_threads} -s temp/mapped.s.fq -1 temp/mapped.1.fq -2 temp/mapped.2.fq mapping_files/${i}.contig.reads_mapped.bam > blank.txt
-repair.sh in=temp/mapped.1.fq in2=temp/mapped.2.fq out1=temp/mapped.repaired.1.fq out2=temp/mapped.repaired.2.fq overwrite=true
+#samtools fastq -F 4 -N -@ ${max_threads} -s temp/mapped.s.fq -1 temp/mapped.1.fq -2 temp/mapped.2.fq mapping_files/${i}.contig.reads_mapped.bam > blank.txt
+#reformat.sh in=temp/temp.sam out=temp/mapped.fastq mappedonly=t overwrite=true
+#repair.sh in=temp/mapped.1.fq in2=temp/mapped.2.fq out1=temp/mapped.repaired.1.fq out2=temp/mapped.repaired.2.fq overwrite=true
+samtools fastq -F 4 temp/temp.sam > temp/mapped.fastq
+repair.sh in=temp/mapped.fastq out1=temp/mapped.repaired.1.fq out2=temp/mapped.repaired.2.fq outs=temp/mapped.s.fq  overwrite=true
 
 bowtie2 -x ref/orfs.nucl -p ${max_threads} -1 temp/mapped.repaired.1.fq \
 -2 temp/mapped.repaired.2.fq \
