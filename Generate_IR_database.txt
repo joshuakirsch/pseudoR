@@ -1,7 +1,8 @@
 #change nucl.fa to the fasta file with IS Sequences
 
 mkdir temp
-seqkit fx2tab final_sequences.dedupe.fna  > temp/IS_nucl.txt
+seqkit fx2tab final_sequences.dedupe.fna  | sed 's/_/:/g' > temp/IS_nucl.txt
+
 cut -f1 temp/IS_nucl.txt | awk '{print $0 "_5prime"}' > temp/name_5.txt
 cut -f1 temp/IS_nucl.txt | awk '{print $0 "_3prime"}' > temp/name_3.txt
 cut -f1 temp/IS_nucl.txt > temp/name_full.txt
