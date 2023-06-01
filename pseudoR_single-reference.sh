@@ -72,7 +72,19 @@ samtools fastq -f 4 temp/temp.sam > mapping_files/${i}.unmapped.fq
 
 seqkit replace -p .+ -r "seq_{nr}" mapping_files/${i}.unmapped.fq > mapping_files/${i}.unmapped.numbered.fq
 seqkit fq2fa mapping_files/${i}.unmapped.numbered.fq > unmapped.fa
-blastn -db ${IR_database}/IRs.fa -query unmapped.fa -out mapping_files/${i}_blast_results.txt -num_threads ${max_threads} -outfmt 6
+
+mkdir blast_results
+
+seqkit split2 -p ${max_threads} --force unmapped.fa
+
+ls unmapped.fa.split > unmapped_list.txt
+
+cat unmapped_list.txt | xargs -P${max_threads} -n1 -I% blastn -db ${IR_database}/IRs.fa -query unmapped.fa.split/% -out blast_results/%_blast_results.txt -num_threads 1 -outfmt 6
+
+cat blast_results/* > mapping_files/${i}_blast_results.txt
+
+
+#blastn -db ${IR_database}/IRs.fa -query unmapped.fa -out mapping_files/${i}_blast_results.txt -num_threads ${max_threads} -outfmt 6
 cut -f1 mapping_files/${i}_blast_results.txt | seqkit grep -f - mapping_files/${i}.unmapped.numbered.fq | seqkit fx2tab > blast_results_reads.tsv
 timeout 20m Rscript --vanilla ${database}/V9_analysis.R ${i}
 seqkit tab2fx ${i}_trimmed_reads.tsv > trimmed_reads.fq
@@ -99,6 +111,8 @@ bowtie2 -x ref/orfs.nucl --very-sensitive -p ${max_threads} -U trimmed_reads.fq 
 samtools view -F 4 mapping_files/${i}.unmapped.orf_mapping.bam > mapping_files/${i}.unmapped.orf_mapping.filtered.sam
 
 cut -f3 mapping_files/${i}.orf_mapping.filtered.sam | sort | uniq > mapping_files/${i}.contig_IS_hits.txt
+rm -r blast_results
+rm -r unmapped.fa.split
 
 done
 
