@@ -1,4 +1,4 @@
-while getopts "s:t:d:r:c:m:h:i:" flag
+while getopts "s:t:d:r:c:m:i:h" flag
 do
     case "${flag}" in
         s) sraList=${OPTARG};;
@@ -24,18 +24,19 @@ done
 
 if [ -z "$IR_database" ]
 then
-      ${IR_database}=${database}
+      IR_database=${database}
 fi
+echo "Location of IS Database:  ${IR_database}"
 
 if [ "$mode" = "m" ]
 then
 
-${database}/pseudoR_multi-reference.sh -s ${sralist} -t ${threads} -d ${database} -c ${dedupe} -r ${reference} -i ${IR_database}
+source ${database}/pseudoR_multi-reference.sh -s ${sralist} -t ${threads} -d ${database} -c ${dedupe} -r ${reference} -i ${IR_database}
 
 elif [ "${mode}" = "s" ]
 then
 
-${database}/pseudoR_single-reference.sh -s ${sralist} -t ${threads} -d ${database} -c ${dedupe} -r ${reference} -i ${IR_database}
+source ${database}/pseudoR_single-reference.sh -s ${sralist} -t ${threads} -d ${database} -c ${dedupe} -r ${reference} -i ${IR_database}
 
 fi
 
