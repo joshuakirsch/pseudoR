@@ -61,7 +61,8 @@ out=temp/readS.fq \
 qtrim=rl threads=${max_threads}
 
 #build contigs mapping database
-seqkit seq ../${reference}/${i}${contig_ending} -m 1000 > ref/contigs.fa
+seqkit_var="${i}""${contig_ending}"
+seqkit seq ../${reference}/${seqkit_var} -m 1000 > ref/contigs.fa
 
 bowtie2-build ref/contigs.fa ref/contigs --threads ${max_threads} -q
 
