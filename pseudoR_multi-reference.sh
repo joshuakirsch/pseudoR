@@ -1,4 +1,4 @@
-while getopts "s:t:d:r:c:m:h" flag
+while getopts "s:t:d:r:c:m:1:2:3:x:h" flag
 do
     case "${flag}" in
         s) sraList=${OPTARG};;
@@ -7,6 +7,10 @@ do
 	c) dedupe=${OPTARG};;
 	m) mode=${OPTARG};;
 	r) reference=${OPTARG};;
+ 	1) read1_ending=${OPTARG};;
+  	2) read2_ending=${OPTARG};;
+   	3) singleton_ending=${OPTARG};;
+    	x) contig_ending=${OPTARG};;
 
     esac
 done
@@ -21,7 +25,7 @@ mkdir ref
 max_threads=${threads}
 wd=$(pwd)
 
-cat ../${reference}/*.fa > ref/allContigs.fa
+cat ../${reference}/*${contig_ending} > ref/allContigs.fa
 seqkit seq ref/allContigs.fa -m 1000 > ref/contigs.1k.fa
 python ${database}/pprodigal.py -i ref/contigs.1k.fa -p meta -d ref/orfs.nucl.fa -T ${max_threads}
 dedupe.sh in=ref/orfs.nucl.fa out=ref/orfs.nucl.dedupe.fa minidentity=90 overwrite=true threads=${max_threads}
@@ -47,17 +51,17 @@ for i in $(cat ../${sraList})
 do
 
 #quality trim reads
-bbduk.sh in1=../${dedupe}/${i}.dedupe_reads.1.fq.gz \
-in2=../${dedupe}/${i}.dedupe_reads.2.fq.gz \
+bbduk.sh in1=../${dedupe}/${i}${read1_ending} \
+in2=../${dedupe}/${i}${read2_ending} \
 out=temp/read1.fq out2=temp/read2.fq \
 qtrim=rl threads=${max_threads}
 
-bbduk.sh in=../${dedupe}/${i}.dedupe_reads.s.fq.gz \
+bbduk.sh in=../${dedupe}/${i}${singleton_ending} \
 out=temp/readS.fq \
 qtrim=rl threads=${max_threads}
 
 #build contigs mapping database
-seqkit seq ../${reference}/${i}_contigs.fa -m 1000 > ref/contigs.fa
+seqkit seq ../${reference}/${i}${contig_ending} -m 1000 > ref/contigs.fa
 
 bowtie2-build ref/contigs.fa ref/contigs --threads ${max_threads} -q
 
