@@ -1,4 +1,4 @@
-while getopts "s:t:d:r:c:m:h" flag
+while getopts "s:t:d:r:c:m:1:2:3:h" flag
 do
     case "${flag}" in
         s) sraList=${OPTARG};;
@@ -7,6 +7,9 @@ do
 	c) dedupe=${OPTARG};;
 	m) mode=${OPTARG};;
 	r) reference=${OPTARG};;
+ 	1) read1_ending=${OPTARG};;
+  	2) read2_ending=${OPTARG};;
+   	3) singleton_ending=${OPTARG};;
 
     esac
 done
@@ -48,12 +51,12 @@ for i in $(cat ../${sraList})
 do
 
 #quality trim reads
-bbduk.sh in1=../${dedupe}/${i}.dedupe_reads.1.fq.gz \
-in2=../${dedupe}/${i}.dedupe_reads.2.fq.gz \
+bbduk.sh in1=../${dedupe}/${i}${read1_ending} \
+in2=../${dedupe}/${i}${read2_ending} \
 out=temp/read1.fq out2=temp/read2.fq \
 qtrim=rl threads=${max_threads}
 
-bbduk.sh in=../${dedupe}/${i}.dedupe_reads.s.fq.gz \
+bbduk.sh in=../${dedupe}/${i}${singleton_ending} \
 out=temp/readS.fq \
 qtrim=rl threads=${max_threads}
 
