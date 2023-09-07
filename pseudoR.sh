@@ -1,4 +1,4 @@
-while getopts "s:t:d:r:c:m:i:1:2:3:xh" flag
+while getopts "s:t:d:r:c:m:i:1:2:3:x:h" flag
 do
     case "${flag}" in
         s) sraList=${OPTARG};;
