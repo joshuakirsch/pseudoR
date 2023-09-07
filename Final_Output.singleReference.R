@@ -70,7 +70,7 @@ sampleList = read_tsv(args[1], col_names = "Sample",
       rename ("3prime_IS_depth" = `3prime`) 
 
 #this block removes IS elements false hits (likely) and adds a better naming strategy for the IS elements
-no_IRs_ID = read_tsv ("no_IRs.ID.tsv", col_names = "IS")
+no_IRs_ID = read_tsv(paste (args[3],"no_IRs.ID.tsv",sep=""), col_names = "IS")
 
 analysis_annot = analysis_annot %>% rowwise() %>%
   filter (! (IS %in% no_IRs_ID$IS))
