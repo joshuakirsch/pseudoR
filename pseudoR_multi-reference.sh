@@ -124,3 +124,5 @@ cut -f3 mapping_files/${i}.orf_mapping.filtered.sam | sort | uniq > mapping_file
 done
 
 bash ${database}/post-analysis_V3.sh -s ../${sraList} -d ${database} 
+Rscript --vanilla ${database}/Final_Output.multiReference.R ${sraList} final_results/contig_analysis.step1.tsv ${database} contig
+Rscript --vanilla ${database}/Final_Output.multiReference.R ${sraList} final_results/orf_analysis.step1.tsv ${database} ORF
