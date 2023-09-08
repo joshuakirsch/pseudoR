@@ -120,5 +120,5 @@ rm -r unmapped.fa.split
 done
 
 bash ${database}/post-analysis_V3.sh -s ../${sraList} -d ${database} 
-Rscript --vanilla ${database}/Final_Output.singleReference.R ${sraList} final_results/contig_analysis.step1.tsv ${database} contig
-Rscript --vanilla ${database}/Final_Output.singleReference.R ${sraList} final_results/orf_analysis.step1.tsv ${database} ORF
+Rscript --vanilla ${database}/Final_Output.singleReference.R ../${sraList} final_results/contig_analysis.step1.tsv ${database} contig
+Rscript --vanilla ${database}/Final_Output.singleReference.R ../${sraList} final_results/orf_analysis.step1.tsv ${database} ORF
