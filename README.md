@@ -22,6 +22,8 @@ This program begins the process of finding IS insertions in metagenomes by first
 
 
 ```
+I recommend using over 10 cores. There is a lot of mapping and BAM sorting in this program which takes a good bit of time. Usually, I budget 1 hour per sample. I also highly recommend that reads are deduplicated before using in this program.
+
 Files in the `results/ref/` folder can be used for downstream analyses if need be:
 * orfs.nucl.fa – All predicted ORFs found in contigs greater than 1 kB
 * orfs.nucl.dedupe.fa – Deduplicated ORFs from orfs.nucl.fa
