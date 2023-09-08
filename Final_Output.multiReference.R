@@ -57,7 +57,7 @@ IS_names  = read_tsv (paste (args[3],"/ISOSDB_names.tsv", sep =""), col_names = 
   rowwise () %>%
   mutate (IS = gsub("_", ":", IS))
 
-analysis_annot = allResults %>% 
+analysis_annot = analysis_annot %>% 
   left_join(IS_fam_df) %>%
   left_join(IS_names)
 
