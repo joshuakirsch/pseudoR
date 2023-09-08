@@ -63,4 +63,4 @@ Useful Output files are
 		- `3prime_IS_depth` = Depth of read from 3' terminus of IS element
 		- `total_IS_depth` = Sum of 5prime_IS_depth and 3prime_IS_depth
 		- `non_IS_depth` = Non-IS read depth (ie reads that originally mapped to this loci) at the insertion position
-		-`depth_percentage`  = Percentage of total_IS_depth/non_IS_depth (ie 100* (total_IS_depth/non_IS_depth))
+		- `depth_percentage`  = Percentage of total_IS_depth/non_IS_depth (ie 100* (total_IS_depth/non_IS_depth))
