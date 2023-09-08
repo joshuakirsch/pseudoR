@@ -72,12 +72,16 @@ if (args[4] == "contig"){
     mutate (intragenic =ifelse(is.na(intragenic), "No", intragenic)) %>%
     distinct() %>%
     rename ("Insertion_Position" = max_depth_site_insertion_pos) %>%
-    rename ("IS_Depth_at_Max_Depth_Site" = max_depth_site_depth)
+    rename ("IS_Depth_at_Max_Depth_Site" = max_depth_site_depth) %>%
+    rename ("IS_element" = ISOSDB_name) %>%
+    select (!IS)
   write_tsv (analysis_annot, "final_results/pseudoR_output.contig.tsv")
 } else if (args[4] == "ORF"){
   analysis_annot = analysis_annot %>%
     mutate ("ORF"=contig) %>%
     rename ("Insertion_Position" = max_depth_site_insertion_pos) %>%
-    rename ("IS_Depth_at_Max_Depth_Site" = max_depth_site_depth)
+    rename ("IS_Depth_at_Max_Depth_Site" = max_depth_site_depth)%>%
+    rename ("IS_element" = ISOSDB_name) %>%
+    select (!IS)
   write_tsv (analysis_annot, "final_results/pseudoR_output.ORF.tsv")
 }
