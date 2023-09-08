@@ -43,7 +43,7 @@ There are many output files from this program and they can take up a lot of spac
 * `sample1.orf.reads_mapped.depth` – Read depth of every position where an IS insertion was predicted in the ORF database
 
 Useful Output files are 
-1. final_results/pseudoR_output.contig.tsv
+1. `final_results/pseudoR_output.contig.tsv`
 	- This the contig mapping output of the pipeline. Here are what the columns in the tsv are:
 		- `sample` = Sample where the insertion was found
 		- `contig` = Contig where the insertion was found
@@ -55,7 +55,7 @@ Useful Output files are
 		- `non_IS_depth` = Non-IS read depth (ie reads that originally mapped to this loci) at the insertion position
 		- `depth_percentage`  = Percentage of total_IS_depth/non_IS_depth (ie 100* (total_IS_depth/non_IS_depth))
 		- `ORF` = ORF where insertion is found. NA if insertion is intergenic
-2. final_results/pseudoR_output.ORF.tsv
+2. `final_results/pseudoR_output.ORF.tsv`
 	- This the contig mapping output of the pipeline. Here are what the columns in the tsv are:
 		- `sample` = Sample where the insertion was found
 		- `ORF` = ORF where the insertion was found
