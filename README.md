@@ -1,3 +1,7 @@
+The ISOSDB V2 is available in this repo.
+
+To use the pseudoR pipeline, please read the following:
+
 Clone directory using git: `git clone https://github.com/joshuakirsch/pseudoR.git`
 Install dependencies with mamba [might work with conda but not sure]: 
 `mamba create -n pseudoR bedtools=2.30.0 blast=2.12.0 bowtie2=2.4.5 mosdepth=0.3.3 prodigal=2.6.3 samtools=1.6 seqkit=2.2.0 r r-essentials r-readr r-tidyr r-dplyr`
