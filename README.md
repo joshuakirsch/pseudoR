@@ -5,7 +5,7 @@ BBTools must be installed using the instructions from this website: [BBTools] (h
 Add the BBTools folder to your $PATH variable before running the pseudoR pipeline
 pseudoR pipeline can be run with a single command:
 `bash pseudoR.sh`
-Running `bash pseudoR.sh` shows the following information:
+Running `bash pseudoR.sh -h` shows the following information:
 ```
 This program begins the process of finding IS insertions in metagenomes by first finding insertions in contigs.
         -s      List of samples
@@ -14,8 +14,8 @@ This program begins the process of finding IS insertions in metagenomes by first
         -m      m for one reference per sample and s for a single reference per sample
         -r      Folder of assemblies if m is selected or location of single reference contigs if s is selected
         -t      Number of threads
-        -1      ending of read1 files. The sample name MUST proceed this delimiter. For instance, for sample1 the read1 file is sample1.read1.fq.gz. The read1 ending should be -1 'read1.fq.gz'
-        -2      ending of read2 files. The sample name MUST proceed this delimiter. For instance, for sample1 the read2 file is sample1.read2.fq.gz. The read1 ending should be -2 'read2.fq.gz'
+        -1      ending of read1 files. The sample name MUST proceed this delimiter. For instance, for sample1 the read1 file is sample1.read1.fq.gz. The read1 ending should be -1 '.read1.fq.gz'
+        -2      ending of read2 files. The sample name MUST proceed this delimiter. For instance, for sample1 the read2 file is sample1.read2.fq.gz. The read1 ending should be -2 '.read2.fq.gz'
         -3      ending of single read files. The sample name MUST proceed this delimiter and you MUST provide a single read file. If none exists, make a blank file as placeholder
         -x      ending of contig files. The sample name MUST proceed this delimiter. For instance, for sample1 the assembly file is sample1.contigs.fa. The contig ending should be -x '.contigs.fa' Only used for multi-reference mode.
   	-i    OPTIONAL: Folder location of IS element blast database (default is the same location as '-d'. However, a custom data         base can be used and will replace the provided IS element database from the ISOSDB. Please make this database using the IR-Database-Generation_V2.sh script)
