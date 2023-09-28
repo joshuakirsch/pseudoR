@@ -9,8 +9,6 @@ options(dplyr.summarise.inform = FALSE)
 
 args = commandArgs(trailingOnly=TRUE)
 
-args = c("../C3015_sraList.txt", "final_results/contig_analysis.step1.tsv")
-
 sampleList = read_tsv(args[1], col_names = "Sample",
                       show_col_types = FALSE)
   analysis = read_tsv(args[2], 
