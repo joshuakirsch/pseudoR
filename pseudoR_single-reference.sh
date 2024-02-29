@@ -54,11 +54,11 @@ do
 bbduk.sh in1=../${dedupe}/${i}${read1_ending} \
 in2=../${dedupe}/${i}${read2_ending} \
 out=temp/read1.fq out2=temp/read2.fq \
-qtrim=rl threads=${max_threads}
+qtrim=rl threads=${max_threads} overwrite=true
 
 bbduk.sh in=../${dedupe}/${i}${singleton_ending} \
 out=temp/readS.fq \
-qtrim=rl threads=${max_threads}
+qtrim=rl threads=${max_threads} overwrite=true
 
 #map to contigs and do IS trimming/mapping
 bowtie2 -x ref/contigs -p ${max_threads} -1 temp/read1.fq \
