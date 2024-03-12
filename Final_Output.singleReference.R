@@ -73,7 +73,7 @@ IS_fam_df  = read_tsv(paste (args[3],"/IS_fam_annot.txt", sep="")) %>%
   rowwise () %>%
   mutate (IS = gsub("_", ":", IS))
 
-analysis_annot = allResults %>% 
+analysis_annot = analysis_annot %>% 
   left_join(IS_fam_df)
 
 if (args[4] == "contig"){
