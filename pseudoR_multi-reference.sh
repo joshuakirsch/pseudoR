@@ -30,7 +30,7 @@ seqkit seq ref/allContigs.fa -m 1000 > ref/contigs.1k.fa
 python ${database}/pprodigal.py -i ref/contigs.1k.fa -p meta -d ref/orfs.nucl.fa -T ${max_threads}
 dedupe.sh in=ref/orfs.nucl.fa out=ref/orfs.nucl.dedupe.fa minidentity=90 overwrite=true threads=${max_threads}
 seqkit fx2tab -n -i -l ref/orfs.nucl.dedupe.fa > ref/orfs.nucl.dedupe.lengths.txt
-bowtie2-build ref/orfs.nucl.dedupe.fa ref/orfs.nucl --threads ${max_threads} -q
+bowtie2-build ref/orfs.nucl.dedupe.fa ref/orfs.nucl --threads ${max_threads} -q --large-index
 
 seqkit fx2tab -n ref/orfs.nucl.dedupe.fa > temp/orf_temp.txt
 cut -f1 -d " " temp/orf_temp.txt > temp/temp_name_1.txt
