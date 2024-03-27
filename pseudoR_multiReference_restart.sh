@@ -1,4 +1,4 @@
-while getopts "s:t:d:r:c:m:1:2:3:x:n:h" flag
+while getopts "s:t:d:r:c:m:1:2:3:x:n:i:h" flag
 do
     case "${flag}" in
      s) sraList=${OPTARG};;
@@ -12,6 +12,7 @@ do
    	3) singleton_ending=${OPTARG};;
     x) contig_ending=${OPTARG};;
 	n) sraList_New=${OPTARG};;
+ i) IR_database=${OPTARG};;
 
     esac
 done
