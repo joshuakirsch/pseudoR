@@ -22,10 +22,12 @@ This program begins the process of finding IS insertions in metagenomes by first
         -2      ending of read2 files. The sample name MUST proceed this delimiter. For instance, for sample1 the read2 file is sample1.read2.fq.gz. The read1 ending should be -2 '.read2.fq.gz'
         -3      ending of single read files. The sample name MUST proceed this delimiter and you MUST provide a single read file. If none exists, make a blank file as placeholder
         -x      ending of contig files. The sample name MUST proceed this delimiter. For instance, for sample1 the assembly file is sample1.contigs.fa. The contig ending should be -x '.contigs.fa' Only used for multi-reference mode.
-  	-i    OPTIONAL: Folder location of IS element blast database (default is the same location as '-d'. However, a custom data         base can be used and will replace the provided IS element database from the ISOSDB. Please make this database using the IR-Database-Generation_V2.sh script)
+  	-i    OPTIONAL: Folder location of IS element blast database (default is the same location as '-d'. However, a custom data         base can be used and will replace the provided IS element database from the ISOSDB. Please make this database using the `Generate_IR_Database.sh` script. This script requires CD-HIT and uses a fasta file of IS sequences as input.)
 
 
 ```
+To make a custom IS termini database, use `Generate_IR_Database.sh` script. This script requires CD-HIT and uses a fasta file of IS sequences as input.
+
 I recommend using over 10 cores. There is a lot of mapping and BAM sorting in this program which takes a good bit of time. Usually, I budget 1 hour per sample. I also highly recommend that reads are deduplicated before using in this program.
 
 This program does not create a log file automatically. To obtain a record of the program's readout, run `bash pseudoR.sh 1>>log.file 2>>log.file`
