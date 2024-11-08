@@ -10,7 +10,8 @@ options(dplyr.summarise.inform = FALSE)
 args = commandArgs(trailingOnly=TRUE)
 
 if (args[4] == "contig"){
-  
+
+  #filter out sites with bad read coverage where the end with the lowest read mapping (either 3' or 5') is at least 1/10th of the mapping of the maximum end 
   sampleList = read_tsv(args[1], col_names = "Sample",
                         show_col_types = FALSE)
   analysis = read_tsv(args[2], 
@@ -22,7 +23,8 @@ if (args[4] == "contig"){
     mutate (high_end = max (c(`5prime`,`3prime`))) %>%
     filter (low_end >= 0.1*(high_end)) %>%
     distinct()
-  
+
+  #process non-IS read mapping to generate read mapping stats
   nonIS_mapping  = data.frame()
   for (i in seq(nrow(sampleList))){
     temp = read_tsv (paste("mapping_files/", sampleList$Sample[i], ".contig.reads_mapped.depth", sep=""),
@@ -39,6 +41,7 @@ if (args[4] == "contig"){
                                    "sample"= "sample")) %>%
     mutate (depth_percentage = (100*(sum(`5prime`+`3prime`)/(sum(`5prime`+`3prime`)+non_IS_depth))))
   
+  #this block collapses IS insertions from nearby sites (within 15 bp) from different samples to the same site.
   ins_itr = analysis_annot %>% select (contig, insertion_pos) %>% distinct () %>%
     ungroup() %>%
     arrange (contig, insertion_pos) %>%
@@ -76,6 +79,7 @@ if (args[4] == "contig"){
   
   analysis_annot = analysis_annot %>% 
     left_join(IS_fam_df)
+  #determine if IS insertions are in ORFs
   inOrf  = read_tsv ("final_results/IS_hits_in_orfs.txt", 
                      col_names = c("contig","start_pos","max_depth_site_insertion_pos", "ORF"),
                      show_col_types = FALSE) %>%
@@ -89,7 +93,7 @@ if (args[4] == "contig"){
     rename ("IS_Depth_at_Max_Depth_Site" = max_depth_site_depth)
   write_tsv (analysis_annot, "final_results/pseudoR_output.contig.tsv")
 } else if (args[4] == "ORF"){
-  
+#this block processes the data as for ORFs with only slight differences  
   sampleList = read_tsv(args[1], col_names = "Sample",
                         show_col_types = FALSE)
   analysis = read_tsv(args[2], 
