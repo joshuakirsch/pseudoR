@@ -25,6 +25,8 @@ max_threads=${threads}
 wd=$(pwd)
 echo $wd
 
+#filter contigs, generate bowtie databases
+
 seqkit seq ../${reference} -m 1000 > ref/contigs.fa
 bowtie2-build ref/contigs.fa ref/contigs --threads ${max_threads} -q
 
@@ -33,6 +35,7 @@ dedupe.sh in=ref/orfs.nucl.fa out=ref/orfs.nucl.dedupe.fa minidentity=90 overwri
 seqkit fx2tab -n -i -l ref/orfs.nucl.dedupe.fa > ref/orfs.nucl.dedupe.lengths.txt
 bowtie2-build ref/orfs.nucl.dedupe.fa ref/orfs.nucl --threads ${max_threads} -q
 
+#generate file with location of all orfs and deduplicated orfs
 seqkit fx2tab -n ref/orfs.nucl.dedupe.fa > temp/orf_temp.txt
 cut -f1 -d " " temp/orf_temp.txt > temp/temp_name_1.txt
 cut -f3 -d " " temp/orf_temp.txt > temp/temp_name_2.txt
@@ -67,15 +70,13 @@ bowtie2 -x ref/contigs -p ${max_threads} -1 temp/read1.fq \
 samtools view -Sb -@ {max_threads} temp/temp.sam > temp/temp1.bam
 samtools sort -@ ${max_threads} -m 4G -o mapping_files/${i}.contig.reads_mapped.bam temp/temp1.bam
 
-#samtools fastq -f 4 -N -@ ${max_threads} -s temp/unmapped.s.fq -1 temp/unmapped.1.fq -2 temp/unmapped.2.fq mapping_files/${i}.contig.reads_mapped.bam > blank.txt
-#reformat.sh in=temp/temp.sam out=mapping_files/${i}.unmapped.fq unmappedonly=t overwrite=true
+#filter out unmapped reads
 samtools fastq -f 4 temp/temp.sam > mapping_files/${i}.unmapped.fq
-
-#cat temp/unmapped.s.fq temp/unmapped.1.fq temp/unmapped.2.fq > mapping_files/${i}.unmapped.fq
 
 seqkit replace -p .+ -r "seq_{nr}" mapping_files/${i}.unmapped.fq > mapping_files/${i}.unmapped.numbered.fq
 seqkit fq2fa mapping_files/${i}.unmapped.numbered.fq > unmapped.fa
 
+#blast unmapped readsa against IS termini database
 mkdir blast_results
 
 seqkit split2 -p ${max_threads} --force unmapped.fa
@@ -87,7 +88,7 @@ cat unmapped_list.txt | xargs -P${max_threads} -n1 -I% blastn -db ${IR_database}
 cat blast_results/* > mapping_files/${i}_blast_results.txt
 
 
-#blastn -db ${IR_database}/IRs.fa -query unmapped.fa -out mapping_files/${i}_blast_results.txt -num_threads ${max_threads} -outfmt 6
+#remove IS termini containing section from reads and remap shortened reads to contigs
 cut -f1 mapping_files/${i}_blast_results.txt | seqkit grep -f - mapping_files/${i}.unmapped.numbered.fq | seqkit fx2tab > blast_results_reads.tsv
 timeout 20m Rscript --vanilla ${database}/V9_analysis.R ${i}
 seqkit tab2fx ${i}_trimmed_reads.tsv > trimmed_reads.fq
@@ -97,9 +98,7 @@ samtools view -F 4 mapping_files/${i}.unmapped.contig_mapping.bam > mapping_file
 cut -f3 mapping_files/${i}.unmapped.contig_mapping.filtered.sam | sort | uniq > mapping_files/${i}.contig_IS_hits.txt
 
 #map to ORFs and do IS trimming/mapping [use previously found mapping reads and unmapped reads]
-#samtools fastq -F 4 -N -@ ${max_threads} -s temp/mapped.s.fq -1 temp/mapped.1.fq -2 temp/mapped.2.fq mapping_files/${i}.contig.reads_mapped.bam > blank.txt
-#reformat.sh in=temp/temp.sam out=temp/mapped.fastq mappedonly=t overwrite=true
-#repair.sh in=temp/mapped.1.fq in2=temp/mapped.2.fq out1=temp/mapped.repaired.1.fq out2=temp/mapped.repaired.2.fq overwrite=true
+
 samtools fastq -F 4 temp/temp.sam > temp/mapped.fastq
 repair.sh in=temp/mapped.fastq out1=temp/mapped.repaired.1.fq out2=temp/mapped.repaired.2.fq outs=temp/mapped.s.fq  overwrite=true
 
@@ -113,12 +112,13 @@ seqkit tab2fx ${i}_trimmed_reads.tsv > trimmed_reads.fq
 bowtie2 -x ref/orfs.nucl --very-sensitive -p ${max_threads} -U trimmed_reads.fq | samtools view -@ 5 -Sb -o mapping_files/${i}.unmapped.orf_mapping.bam
 samtools view -F 4 mapping_files/${i}.unmapped.orf_mapping.bam > mapping_files/${i}.unmapped.orf_mapping.filtered.sam
 
-cut -f3 mapping_files/${i}.orf_mapping.filtered.sam | sort | uniq > mapping_files/${i}.contig_IS_hits.txt
+cut -f3 mapping_files/${i}.unmapped.orf_mapping.filtered.sam | sort | uniq > mapping_files/${i}.contig_IS_hits.txt
 rm -r blast_results
 rm -r unmapped.fa.split
 
 done
 
+#process mapping results and generate output data
 bash ${database}/post-analysis_V3.sh -s ../${sraList} -d ${database} 
 Rscript --vanilla ${database}/Final_Output.singleReference.R ../${sraList} final_results/contig_analysis.step1.tsv ${database} contig
 Rscript --vanilla ${database}/Final_Output.singleReference.R ../${sraList} final_results/orf_analysis.step1.tsv ${database} ORF
