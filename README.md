@@ -1,4 +1,4 @@
-The ISOSDB V2 is available in this repo.
+The ISOSDB V3 is available in this repo as ISOSDB.V3.fna.zip
 
 To use the pseudoR pipeline, please read the following:
 
