@@ -9,6 +9,7 @@ options(dplyr.summarise.inform = FALSE)
 
 args = commandArgs(trailingOnly=TRUE)
 
+#filter read data such that the end (3' or 5') of with the lowest level of read mapping is 1/10th or greater than the higher end of read mapping
 sampleList = read_tsv(args[1], col_names = "Sample",
                       show_col_types = FALSE)
 analysis = read_tsv(args[2], 
@@ -21,7 +22,7 @@ analysis = read_tsv(args[2],
   filter (low_end >= 0.1*(high_end)) %>%
   distinct()
 
-
+#process non-IS read mapping to generate non-IS read statistics
 nonIS_mapping  = data.frame()
 for (i in seq(nrow(sampleList))){
   temp = read_tsv (paste("mapping_files/", sampleList$Sample[i], ".contig.reads_mapped.depth", sep=""),
