@@ -1,4 +1,6 @@
-The ISOSDB V3 is available in this repo as ISOSDB.V3.fna.zip
+This program finds the location of IS elements that were missed during assembly from complex populations, such as gut metagenomes, using a split-read approach. If you use this tool, please cite this paper: https://pubmed.ncbi.nlm.nih.gov/38565143/
+
+This program uses the Insertion Sequence Open Source Database (ISOSDB). The ISOSDB V3 is available in this repo as ISOSDB.V3.fna.zip
 
 To use the pseudoR pipeline, please read the following:
 
